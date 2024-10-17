@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Редактор Курсів</title>
+</head>
+<body>
+<h1>Редактор Курсів</h1>
+
+<h2>Додати</h2>
+<form method="post" action="/admin/rates/save">
+    <label for="currencyName">Валюта: </label>
+    <input type="text" id="currencyName" name="currencyName" required>
+
+    <label for="date">Дата: </label>
+    <input type="date" id="date" name="date" required>
+
+    <label for="rate">Курс: </label>
+    <input type="text" id="rate" name="rate" placeholder="Enter Exchange Rate" required>
+
+    <button type="submit">Додати</button>
+</form>
+
+<h2>Таблиця Наявних Курсів</h2>
+<table border="1">
+    <thead>
+    <tr>
+        <th>Валюта</th>
+        <th>Дата</th>
+        <th>Курс</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="rate : ${rates}">
+        <td th:text="${rate.currency.name}"></td>
+        <td th:text="${rate.date}"></td>
+        <td th:text="${rate.rate}"></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

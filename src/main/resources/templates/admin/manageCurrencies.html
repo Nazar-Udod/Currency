@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Редактор Валют</title>
+</head>
+<body>
+<h1>Редактор Валют</h1>
+
+<h2>Додати/Редагувати</h2>
+<form method="post" action="/admin/currencies/save">
+  <label for="id">ID: </label>
+  <input type="text" id="id" name="id">
+
+  <label for="name">Назва: </label>
+  <input type="text" id="name" name="name">
+
+  <button type="submit">Save Currency</button>
+</form>
+
+<h2>Таблиця Наявних Валют</h2>
+<table border="1">
+  <thead>
+  <tr>
+    <th>ID</th>
+    <th>Назва</th>
+    <th>Видалити</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="currency : ${currencies}">
+    <td th:text="${currency.id}"></td>
+    <td th:text="${currency.name}"></td>
+    <td>
+      <form action="/admin/currencies/delete" method="post">
+        <input type="hidden" name="currencyName" th:value="${currency.name}" />
+        <button type="submit">Видалити</button>
+      </form>
+    </td>
+  </tr>
+  </tbody>
+</table>
+</body>
+</html>
