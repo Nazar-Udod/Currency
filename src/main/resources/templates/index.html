@@ -6,6 +6,16 @@
 </head>
 <body>
 <h1>Курси Валюта</h1>
+<section>
+    <h2>Оберіть тип конвертації:</h2>
+    <form action="/rates/today" method="get">
+        <input type="radio" name="ChooseType" value="inDollars" id="1" th:checked="${ChooseType == 'inDollars'}">
+        <label for="1">Ціна долара у валюті</label>
+        <input type="radio" name="ChooseType" value="Reverse" id="2" th:checked="${ChooseType == 'Reverse'}">
+        <label for="2">Ціна валюти у доларах</label>
+        <button type="submit">Показати</button>
+    </form>
+</section>
 
 <table border="1">
     <thead>
@@ -18,7 +28,10 @@
     <tbody>
     <tr th:each="rate : ${rates}">
         <td th:text="${rate.currency.name}"></td>
-        <td th:text="${rate.rate}"></td>
+        <td th:switch="${ChooseType}">
+            <span th:case="'inDollars'" th:text="${rate.rate}"></span>
+            <span th:case="'Reverse'" th:text="${1 / rate.rate}"></span>
+        </td>
         <td th:text="${rate.date}"></td>
     </tr>
     </tbody>
@@ -28,13 +41,10 @@
 <form method="get" action="/rates">
     <label for="currencyName">Валюта: </label>
     <input type="text" id="currencyName" name="currencyName" required>
-
     <label for="startDate">Початкова дата: </label>
     <input type="date" id="startDate" name="startDate" required>
-
     <label for="endDate">Кінцева дата: </label>
     <input type="date" id="endDate" name="endDate" required>
-
     <button type="submit">Пошук</button>
 </form>
 </body>

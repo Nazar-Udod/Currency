@@ -1,11 +1,13 @@
 package com.example.currency.controller;
 
+import com.example.currency.model.ExchangeRate;
 import org.springframework.stereotype.Controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.example.currency.service.CurrencyService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
 import java.time.LocalDate;
+import java.util.List;
 
 @Controller
 public class CurrencyController {
@@ -13,12 +15,15 @@ public class CurrencyController {
     @Autowired
     private CurrencyService currencyService;
 
-    // Methods for Guest
     @GetMapping("/rates/today")
-    public String viewCurrentRates(Model model) {
-        model.addAttribute("rates", currencyService.getExchangeRatesForCurrentDay());
+    public String viewCurrentRates(@RequestParam(defaultValue = "inDollars") String ChooseType, Model model) {
+        List<ExchangeRate> rates = currencyService.getExchangeRatesForCurrentDay();
+        model.addAttribute("rates", rates);
+        model.addAttribute("ChooseType", ChooseType);  // Передаем значение для Thymeleaf
         return "index";
     }
+
+
 
     @GetMapping("/rates")
     public String getExchangeRates(@RequestParam String currencyName,
