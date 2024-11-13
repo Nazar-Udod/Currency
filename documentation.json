@@ -1,0 +1,281 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Currency API",
+    "description": "API for managing currencies and exchange rates.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/api"
+    }
+  ],
+  "paths": {
+    "/currencies": {
+      "get": {
+        "summary": "Get all currencies",
+        "description": "Returns a list of all available currencies.",
+        "responses": {
+          "200": {
+            "description": "A list of currencies.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Currency"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new currency",
+        "description": "Creates a new currency with specified details.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Currency"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Currency created successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Currency"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/currencies/{name}": {
+      "delete": {
+        "summary": "Delete a currency",
+        "description": "Deletes a currency by name.",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Currency deleted successfully."
+          }
+        }
+      }
+    },
+    "/rates": {
+      "get": {
+        "summary": "Get exchange rates",
+        "description": "Returns a list of exchange rates with optional filtering by currency and date range.",
+        "parameters": [
+          {
+            "name": "currencyName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "startDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of exchange rates.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExchangeRate"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create an exchange rate",
+        "description": "Creates a new exchange rate record.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExchangeRate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Exchange rate created successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                  "$ref": "#/components/schemas/ExchangeRate"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update an exchange rate",
+        "description": "Updates an existing exchange rate record.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExchangeRate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Exchange rate updated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExchangeRate"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Exchange rate not found."
+          }
+        }
+      }
+    },
+    "/rates/{currencyName}": {
+      "delete": {
+        "summary": "Delete exchange rates by currency",
+        "description": "Deletes all exchange rates for a specified currency.",
+        "parameters": [
+          {
+            "name": "currencyName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Exchange rates deleted successfully."
+          }
+        }
+      }
+    },
+    "/rates/today": {
+      "get": {
+        "summary": "Get today's exchange rates",
+        "description": "Returns the exchange rates for the current day.",
+        "responses": {
+          "200": {
+            "description": "A list of today's exchange rates.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExchangeRate"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Currency": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the currency."
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the currency."
+          }
+        },
+        "required": ["id", "name"]
+      },
+      "ExchangeRate": {
+        "type": "object",
+        "properties": {
+          "currency": {
+            "$ref": "#/components/schemas/Currency",
+            "description": "Currency related to the exchange rate."
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "description": "Date of the exchange rate."
+          },
+          "rate": {
+            "type": "number",
+            "format": "float",
+            "description": "Exchange rate value."
+          }
+        },
+        "required": ["currency", "date", "rate"]
+      }
+    }
+  }
+}

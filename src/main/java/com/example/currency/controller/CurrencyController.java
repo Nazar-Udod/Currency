@@ -1,74 +1,84 @@
 package com.example.currency.controller;
 
+import com.example.currency.model.Currency;
 import com.example.currency.model.ExchangeRate;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.example.currency.service.CurrencyService;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.ui.Model;
 import java.time.LocalDate;
 import java.util.List;
 
-@Controller
+@RestController
+@RequestMapping("/api")
 public class CurrencyController {
     // Dependency
     @Autowired
     private CurrencyService currencyService;
 
-    @GetMapping("/rates/today")
-    public String viewCurrentRates(@RequestParam(defaultValue = "inDollars") String ChooseType, Model model) {
-        List<ExchangeRate> rates = currencyService.getExchangeRatesForCurrentDay();
-        model.addAttribute("rates", rates);
-        model.addAttribute("ChooseType", ChooseType);  // Передаем значение для Thymeleaf
-        return "index";
+    @GetMapping("/currencies")
+    public List<Currency> getAllCurrencies() {
+        return currencyService.getAllCurrencies();
     }
 
+    @PostMapping("/currencies")
+    public ResponseEntity<Currency> createCurrency(@RequestBody Currency currency) {
+        currencyService.saveCurrency(currency.getId(), currency.getName());
+        return new ResponseEntity<>(currency, HttpStatus.CREATED);
+    }
 
+    @DeleteMapping("/currencies/{name}")
+    public ResponseEntity<Void> deleteCurrency(@PathVariable String name) {
+        currencyService.deleteCurrencyByName(name);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 
     @GetMapping("/rates")
-    public String getExchangeRates(@RequestParam String currencyName,
-                                   @RequestParam String startDate,
-                                   @RequestParam String endDate,
-                                   Model model) {
-        LocalDate start = LocalDate.parse(startDate);
-        LocalDate end = LocalDate.parse(endDate);
-        model.addAttribute("rates", currencyService.getExchangeRatesForCurrency(currencyName, start, end));
-        return "index";
+    public List<ExchangeRate> getAllExchangeRates(
+            @RequestParam(required = false) String currencyName,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        if (currencyName != null && startDate != null && endDate != null) {
+            LocalDate start = LocalDate.parse(startDate);
+            LocalDate end = LocalDate.parse(endDate);
+            return currencyService.getExchangeRatesForCurrency(currencyName, start, end, page, size);
+        }
+        return currencyService.getAllExchangeRates(page, size);
     }
 
-    // Methods for Admin
-    @GetMapping("/admin/currencies")
-    public String manageCurrencies(Model model) {
-        model.addAttribute("currencies", currencyService.getAllCurrencies());
-        return "admin/manageCurrencies";
+    @GetMapping("/rates/today")
+    public List<ExchangeRate> getExchangeRatesForToday() {
+        return currencyService.getExchangeRatesForCurrentDay();
     }
 
-    @PostMapping("/admin/currencies/save")
-    public String saveCurrency(@RequestParam Integer id,
-                               @RequestParam String name) {
-        currencyService.saveCurrency(id, name);
-        return "redirect:/admin/currencies";
+    @PostMapping("/rates")
+    public ResponseEntity<ExchangeRate> createExchangeRate(@RequestBody ExchangeRate rate) {
+        currencyService.saveExchangeRate(rate.getCurrency().getName(), rate.getDate(), rate.getRate());
+        return new ResponseEntity<>(rate, HttpStatus.CREATED);
     }
 
-    @PostMapping("/admin/currencies/delete")
-    public String deleteCurrency(@RequestParam String currencyName) {
+    @PutMapping("/rates")
+    public ResponseEntity<ExchangeRate> updateExchangeRate(@RequestBody ExchangeRate updatedRate) {
+        ExchangeRate existingRate = currencyService.getExchangeRateForCurrency(
+                updatedRate.getCurrency().getName(), updatedRate.getDate());
+
+        if (existingRate == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        existingRate.setRate(updatedRate.getRate());
+        currencyService.saveExchangeRate(existingRate.getCurrency().getName(), existingRate.getDate(), existingRate.getRate());
+
+        return new ResponseEntity<>(existingRate, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/rates/{currencyName}")
+    public ResponseEntity<Void> deleteExchangeRatesByCurrency(@PathVariable String currencyName) {
         currencyService.deleteExchangeRatesByCurrency(currencyName);
-        currencyService.deleteCurrencyByName(currencyName);
-        return "redirect:/admin/currencies";
-    }
-
-    @GetMapping("/admin/rates")
-    public String manageExchangeRates(Model model) {
-        model.addAttribute("rates", currencyService.getAllExchangeRates());
-        return "admin/manageRates";
-    }
-
-    @PostMapping("/admin/rates/save")
-    public String saveExchangeRate(@RequestParam String currencyName,
-                                   @RequestParam String date,
-                                   @RequestParam double rate) {
-        LocalDate localDate = LocalDate.parse(date);
-        currencyService.saveExchangeRate(currencyName, localDate, rate);
-        return "redirect:/admin/rates";
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

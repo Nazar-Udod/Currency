@@ -3,6 +3,7 @@ package com.example.currency.service;
 import org.springframework.stereotype.Service;
 import com.example.currency.repository.CurrencyRepository;
 import com.example.currency.repository.ExchangeRateRepository;
+import java.util.ArrayList;
 import java.util.List;
 import com.example.currency.model.Currency;
 import com.example.currency.model.ExchangeRate;
@@ -35,11 +36,17 @@ public class CurrencyService {
     }
 
     public void deleteCurrencyByName(String currencyName) {
+        Currency currency = getCurrencyByName(currencyName);
+        if (currency != null) {
+            exchangeRateRepository.deleteByCurrency(currency.getId());
+        }
+
         currencyRepository.deleteByName(currencyName);
     }
 
-    public List<ExchangeRate> getAllExchangeRates() {
-        return exchangeRateRepository.getAll();
+    public List<ExchangeRate> getAllExchangeRates(int page, int size) {
+        List<ExchangeRate> allRates = exchangeRateRepository.getAll();
+        return paginateList(allRates, page, size);
     }
 
     public List<ExchangeRate> getExchangeRatesForCurrentDay() {
@@ -50,9 +57,19 @@ public class CurrencyService {
         return exchangeRateRepository.getByCurrencyAndDate(getCurrencyByName(currencyName).getId(), date);
     }
 
-    public List<ExchangeRate> getExchangeRatesForCurrency(String currencyName, LocalDate startDate, LocalDate endDate) {
-        return exchangeRateRepository.getByCurrencyAndDateRange(getCurrencyByName(currencyName).getId(),
-                startDate, endDate);
+    public List<ExchangeRate> getExchangeRatesForCurrency(String currencyName, LocalDate startDate, LocalDate endDate, int page, int size) {
+        List<ExchangeRate> filteredRates = exchangeRateRepository.getByCurrencyAndDateRange(
+                getCurrencyByName(currencyName).getId(), startDate, endDate);
+        return paginateList(filteredRates, page, size);
+    }
+
+    private List<ExchangeRate> paginateList(List<ExchangeRate> rates, int page, int size) {
+        int fromIndex = page * size;
+        int toIndex = Math.min(fromIndex + size, rates.size());
+        if (fromIndex >= rates.size()) {
+            return new ArrayList<>();
+        }
+        return rates.subList(fromIndex, toIndex);
     }
 
     public void saveExchangeRate(String currencyName, LocalDate date, double rate) {
