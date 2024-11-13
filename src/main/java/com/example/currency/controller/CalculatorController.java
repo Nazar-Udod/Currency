@@ -3,6 +3,7 @@ package com.example.currency.controller;
 import com.example.currency.service.CalculatorService;
 import com.example.currency.service.CurrencyService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import java.time.LocalDate;
@@ -27,17 +28,19 @@ public class CalculatorController {
             @RequestParam("inputCurrency") String inputCurrencyName,
             @RequestParam("outputCurrency") String outputCurrencyName) {
 
-        double inputRate = currencyService.getExchangeRateForCurrency(inputCurrencyName, LocalDate.now()).getRate();
-        double outputRate = currencyService.getExchangeRateForCurrency(outputCurrencyName, LocalDate.now()).getRate();
-
-        double convertedAmount = calculatorService.convert(amount, inputRate, outputRate);
-
         Map<String, Object> response = new HashMap<>();
         response.put("inputCurrency", inputCurrencyName);
         response.put("outputCurrency", outputCurrencyName);
         response.put("originalAmount", amount);
-        response.put("convertedAmount", convertedAmount);
-
-        return ResponseEntity.ok(response);
+        try {
+            double inputRate = currencyService.getExchangeRateForCurrency(inputCurrencyName, LocalDate.now()).getRate();
+            double outputRate = currencyService.getExchangeRateForCurrency(outputCurrencyName, LocalDate.now()).getRate();
+            double convertedAmount = calculatorService.convert(amount, inputRate, outputRate);
+            response.put("convertedAmount", convertedAmount);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+        catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
     }
 }

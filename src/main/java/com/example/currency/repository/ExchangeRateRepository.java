@@ -9,6 +9,7 @@ public interface ExchangeRateRepository {
     List<ExchangeRate> getAllByDate(LocalDate date);
     ExchangeRate getByCurrencyAndDate(Integer currencyId, LocalDate date);
     List<ExchangeRate> getByCurrencyAndDateRange(Integer currencyId, LocalDate startDate, LocalDate endDate);
-    void save(ExchangeRate exchangeRate);
-    void deleteByCurrency(Integer currencyId);
+    void add(String currencyName, LocalDate date, double rate);
+    void editRate(String currencyName, LocalDate date, double rate);
+    void deleteByCurrencyName(String currencyName);
 }

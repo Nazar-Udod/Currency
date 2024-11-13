@@ -7,6 +7,6 @@ public interface CurrencyRepository {
     List<Currency> getAll();
     Currency getById(Integer id);
     Currency getByName(String name);
-    void save(Currency currency);
-    void deleteByName(String currencyName);
+    void add(String name);
+    void deleteByName(String name);
 }

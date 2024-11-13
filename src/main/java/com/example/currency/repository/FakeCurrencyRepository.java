@@ -26,32 +26,53 @@ public class FakeCurrencyRepository implements CurrencyRepository {
 
     @Override
     public Currency getById(Integer id) {
-        return currencies.stream()
-                .filter(currency -> currency.getId().equals(id))
+        Currency currency = currencies.stream()
+                .filter(c -> c.getId().equals(id))
                 .findFirst()
                 .orElse(null);
+        if (currency != null) {
+            return currency;
+        }
+        else {
+            throw new IllegalArgumentException("Currency doesn't exist");
+        }
     }
 
     @Override
     public Currency getByName(String name) {
-        return currencies.stream()
-                .filter(currency -> currency.getName().equals(name))
+        Currency currency = currencies.stream()
+                .filter(c -> c.getName().equals(name))
                 .findFirst()
                 .orElse(null);
-    }
-
-    @Override
-    public void save(Currency currency) {
-        Integer id = currency.getId();
-        currencies.removeIf(c -> c.getId().equals(id));
-        if (id == null) {
-            currency.setId(currentId++);
+        if (currency != null) {
+            return currency;
         }
-        currencies.add(currency);
+        else {
+            throw new IllegalArgumentException("Currency doesn't exist");
+        }
     }
 
     @Override
-    public void deleteByName(String currencyName) {
-        currencies.removeIf(currency -> currency.getName().equals(currencyName));
+    public void add(String name) {
+        if (currencies.stream().anyMatch(currency -> currency.getName().equals(name))) {
+            throw new IllegalArgumentException("Currency name already exists");
+        }
+        else {
+            currencies.add(new Currency(currentId++, name));
+        }
+    }
+
+    @Override
+    public void deleteByName(String name) {
+        Currency currency = currencies.stream()
+                .filter(c -> c.getName().equals(name))
+                .findFirst()
+                .orElse(null);
+        if (currency != null) {
+            currencies.remove(currency);
+        }
+        else {
+            throw new IllegalArgumentException("Currency name does not exist");
+        }
     }
 }

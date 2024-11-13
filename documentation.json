@@ -1,56 +1,23 @@
 {
-  "openapi": "3.0.1",
+  "openapi": "3.0.0",
   "info": {
-    "title": "Currency API",
-    "description": "API for managing currencies and exchange rates.",
-    "version": "1.0.0"
+    "title": "Currency Exchange API",
+    "version": "1.0.0",
+    "description": "API для керування валютами, обмінними курсами і конвертації валют."
   },
-  "servers": [
-    {
-      "url": "/api"
-    }
-  ],
   "paths": {
-    "/currencies": {
+    "/api/currencies": {
       "get": {
-        "summary": "Get all currencies",
-        "description": "Returns a list of all available currencies.",
+        "summary": "Отримати список всіх валют",
+        "operationId": "getAllCurrencies",
         "responses": {
           "200": {
-            "description": "A list of currencies.",
+            "description": "Список всіх валют",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Currency"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "summary": "Create a new currency",
-        "description": "Creates a new currency with specified details.",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Currency"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Currency created successfully.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Currency"
+                  "items": { "$ref": "#/components/schemas/Currency" }
                 }
               }
             }
@@ -58,184 +25,157 @@
         }
       }
     },
-    "/currencies/{name}": {
-      "delete": {
-        "summary": "Delete a currency",
-        "description": "Deletes a currency by name.",
+    "/api/currencies/{name}": {
+      "post": {
+        "summary": "Створити нову валюту",
+        "operationId": "createCurrency",
         "parameters": [
           {
             "name": "name",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "string"
-            }
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
-          "204": {
-            "description": "Currency deleted successfully."
+          "201": { "description": "Валюта створена" },
+          "400": { "description": "Помилка: валюта вже існує" }
+        }
+      },
+      "delete": {
+        "summary": "Видалити валюту",
+        "operationId": "deleteCurrency",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
           }
+        ],
+        "responses": {
+          "204": { "description": "Валюта видалена" },
+          "400": { "description": "Помилка: валюта не знайдена" }
         }
       }
     },
-    "/rates": {
+    "/api/rates": {
       "get": {
-        "summary": "Get exchange rates",
-        "description": "Returns a list of exchange rates with optional filtering by currency and date range.",
+        "summary": "Отримати список обмінних курсів",
+        "operationId": "getAllExchangeRates",
         "parameters": [
-          {
-            "name": "currencyName",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "startDate",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "format": "date"
-            }
-          },
-          {
-            "name": "endDate",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "format": "date"
-            }
-          },
-          {
-            "name": "page",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "default": 0
-            }
-          },
-          {
-            "name": "size",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "default": 10
-            }
-          }
+          { "name": "currencyName", "in": "query", "schema": { "type": "string" } },
+          { "name": "startDate", "in": "query", "schema": { "type": "string", "format": "date" } },
+          { "name": "endDate", "in": "query", "schema": { "type": "string", "format": "date" } },
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 0 } },
+          { "name": "size", "in": "query", "schema": { "type": "integer", "default": 10 } }
         ],
         "responses": {
           "200": {
-            "description": "A list of exchange rates.",
+            "description": "Список обмінних курсів",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ExchangeRate"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "summary": "Create an exchange rate",
-        "description": "Creates a new exchange rate record.",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ExchangeRate"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Exchange rate created successfully.",
-            "content": {
-              "application/json": {
-                "schema": {
-
-                  "$ref": "#/components/schemas/ExchangeRate"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "summary": "Update an exchange rate",
-        "description": "Updates an existing exchange rate record.",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ExchangeRate"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Exchange rate updated successfully.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ExchangeRate"
+                  "items": { "$ref": "#/components/schemas/ExchangeRate" }
                 }
               }
             }
           },
-          "404": {
-            "description": "Exchange rate not found."
+          "400": { "description": "Помилка: некоректні параметри" }
+        }
+      },
+      "post": {
+        "summary": "Створити новий обмінний курс",
+        "operationId": "createExchangeRate",
+        "parameters": [
+          { "name": "currencyName", "in": "query", "required": true, "schema": { "type": "string" } },
+          { "name": "date", "in": "query", "required": true, "schema": { "type": "string", "format": "date" } },
+          { "name": "rate", "in": "query", "required": true, "schema": { "type": "number" } }
+        ],
+        "responses": {
+          "201": { "description": "Обмінний курс створений" },
+          "400": { "description": "Помилка: обмінний курс вже існує" }
+        }
+      },
+      "put": {
+        "summary": "Оновити обмінний курс",
+        "operationId": "updateExchangeRate",
+        "parameters": [
+          { "name": "currencyName", "in": "query", "required": true, "schema": { "type": "string" } },
+          { "name": "date", "in": "query", "required": true, "schema": { "type": "string", "format": "date" } },
+          { "name": "rate", "in": "query", "required": true, "schema": { "type": "number" } }
+        ],
+        "responses": {
+          "200": { "description": "Обмінний курс оновлено" },
+          "400": { "description": "Помилка: обмінний курс не знайдено" }
+        }
+      }
+    },
+    "/api/rates/today": {
+      "get": {
+        "summary": "Отримати обмінні курси на поточний день",
+        "operationId": "getRatesForToday",
+        "responses": {
+          "200": {
+            "description": "Список обмінних курсів на поточний день",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/ExchangeRate" }
+                }
+              }
+            }
           }
         }
       }
     },
-    "/rates/{currencyName}": {
+    "/api/rates/{currencyName}": {
       "delete": {
-        "summary": "Delete exchange rates by currency",
-        "description": "Deletes all exchange rates for a specified currency.",
+        "summary": "Видалити обмінні курси за назвою валюти",
+        "operationId": "deleteRatesByCurrencyName",
         "parameters": [
           {
             "name": "currencyName",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "string"
-            }
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
-          "204": {
-            "description": "Exchange rates deleted successfully."
-          }
+          "204": { "description": "Обмінні курси видалені" },
+          "400": { "description": "Помилка: валюта не знайдена" }
         }
       }
     },
-    "/rates/today": {
-      "get": {
-        "summary": "Get today's exchange rates",
-        "description": "Returns the exchange rates for the current day.",
+    "/api/calculator/convert": {
+      "post": {
+        "summary": "Конвертувати валюту",
+        "operationId": "convertCurrency",
+        "parameters": [
+          { "name": "amount", "in": "query", "required": true, "schema": { "type": "number" } },
+          { "name": "inputCurrency", "in": "query", "required": true, "schema": { "type": "string" } },
+          { "name": "outputCurrency", "in": "query", "required": true, "schema": { "type": "string" } }
+        ],
         "responses": {
           "200": {
-            "description": "A list of today's exchange rates.",
+            "description": "Сума після конвертації",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ExchangeRate"
+                  "type": "object",
+                  "properties": {
+                    "inputCurrency": { "type": "string" },
+                    "outputCurrency": { "type": "string" },
+                    "originalAmount": { "type": "number" },
+                    "convertedAmount": { "type": "number" }
                   }
                 }
               }
             }
-          }
+          },
+          "400": { "description": "Помилка: невірні дані" }
         }
       }
     }
@@ -245,36 +185,18 @@
       "Currency": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string",
-            "description": "Unique identifier for the currency."
-          },
-          "name": {
-            "type": "string",
-            "description": "Name of the currency."
-          }
-        },
-        "required": ["id", "name"]
+          "id": { "type": "integer" },
+          "name": { "type": "string" }
+        }
       },
       "ExchangeRate": {
         "type": "object",
         "properties": {
-          "currency": {
-            "$ref": "#/components/schemas/Currency",
-            "description": "Currency related to the exchange rate."
-          },
-          "date": {
-            "type": "string",
-            "format": "date",
-            "description": "Date of the exchange rate."
-          },
-          "rate": {
-            "type": "number",
-            "format": "float",
-            "description": "Exchange rate value."
-          }
-        },
-        "required": ["currency", "date", "rate"]
+          "id": { "type": "integer" },
+          "currency": { "$ref": "#/components/schemas/Currency" },
+          "date": { "type": "string", "format": "date" },
+          "rate": { "type": "number" }
+        }
       }
     }
   }

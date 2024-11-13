@@ -30,18 +30,15 @@ public class CurrencyService {
         return currencyRepository.getByName(name);
     }
 
-    public void saveCurrency(Integer id, String name) {
-        Currency currency = new Currency(id, name);
-        currencyRepository.save(currency);
+    public void saveCurrency(String name) {
+        currencyRepository.add(name);
     }
 
-    public void deleteCurrencyByName(String currencyName) {
-        Currency currency = getCurrencyByName(currencyName);
-        if (currency != null) {
-            exchangeRateRepository.deleteByCurrency(currency.getId());
-        }
+    public void deleteCurrencyByName(String name) {
+        Currency currency = getCurrencyByName(name);
+        exchangeRateRepository.deleteByCurrencyName(name);
 
-        currencyRepository.deleteByName(currencyName);
+        currencyRepository.deleteByName(name);
     }
 
     public List<ExchangeRate> getAllExchangeRates(int page, int size) {
@@ -72,13 +69,15 @@ public class CurrencyService {
         return rates.subList(fromIndex, toIndex);
     }
 
-    public void saveExchangeRate(String currencyName, LocalDate date, double rate) {
-        Currency currency = getCurrencyByName(currencyName);
-        ExchangeRate exchangeRate = new ExchangeRate(null, currency, date, rate);
-        exchangeRateRepository.save(exchangeRate);
+    public void addExchangeRate(String currencyName, LocalDate date, double rate) {
+        exchangeRateRepository.add(currencyName, date, rate);
     }
 
-    public void deleteExchangeRatesByCurrency(String currencyName) {
-        exchangeRateRepository.deleteByCurrency(getCurrencyByName(currencyName).getId());
+    public void editExchnageRate(String currencyName, LocalDate date, double rate) {
+        exchangeRateRepository.editRate(currencyName, date, rate);
+    }
+
+    public void deleteExchangeRatesByCurrencyName(String currencyName) {
+        exchangeRateRepository.deleteByCurrencyName(currencyName);
     }
 }

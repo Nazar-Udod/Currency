@@ -42,38 +42,66 @@ public class FakeExchangeRateRepository implements ExchangeRateRepository {
     @Override
     public List<ExchangeRate> getAllByDate(LocalDate date) {
         return exchangeRates.stream()
-                .filter(rate -> rate.getDate().equals(date))
+                .filter(er -> er.getDate().equals(date))
                 .collect(Collectors.toList());
     }
 
     @Override
     public ExchangeRate getByCurrencyAndDate(Integer currencyId, LocalDate date) {
-        return exchangeRates.stream()
-                .filter(rate -> rate.getCurrency().getId().equals(currencyId) && rate.getDate().equals(date))
+        ExchangeRate exchangeRate = exchangeRates.stream()
+                .filter(er -> er.getCurrency().getId().equals(currencyId) && er.getDate().equals(date))
                 .findFirst().
                 orElse(null);
+        if (exchangeRate != null) {
+            return exchangeRate;
+        }
+        else {
+            throw new IllegalArgumentException("Exchange rate doesn't exist");
+        }
     }
 
     @Override
     public List<ExchangeRate> getByCurrencyAndDateRange(Integer currencyId, LocalDate startDate, LocalDate endDate) {
         return exchangeRates.stream()
-                .filter(rate -> rate.getCurrency().getId().equals(currencyId) &&
-                        !rate.getDate().isBefore(startDate) && !rate.getDate().isAfter(endDate))
+                .filter(er -> er.getCurrency().getId().equals(currencyId) &&
+                        !er.getDate().isBefore(startDate) && !er.getDate().isAfter(endDate))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public void save(ExchangeRate exchangeRate) {
-        Integer id = exchangeRate.getId();
-        exchangeRates.removeIf(rate -> rate.getId().equals(id));
-        if (id == null) {
-            exchangeRate.setId(currentId++);
+    public void add(String currencyName, LocalDate date, double rate) {
+        if (exchangeRates.stream().anyMatch(er -> er.getCurrency().getName().equals(currencyName) &&
+                er.getDate().equals(date))) {
+            throw new IllegalArgumentException("Exchange rate already exists");
         }
-        exchangeRates.add(exchangeRate);
+        else {
+            exchangeRates.add(new ExchangeRate(currentId++,
+                    currencyRepository.getByName(currencyName),
+                    date,
+                    rate));
+        }
     }
 
     @Override
-    public void deleteByCurrency(Integer currencyId) {
-        exchangeRates.removeIf(rate -> rate.getCurrency().getId().equals(currencyId));
+    public void editRate(String currencyName, LocalDate date, double rate) {
+        ExchangeRate exchangeRate = exchangeRates.stream()
+                .filter(er -> er.getCurrency().getName().equals(currencyName) && er.getDate().equals(date))
+                .findFirst().
+                orElse(null);
+        if (exchangeRate != null) {
+            exchangeRate.setRate(rate);
+        }
+        else {
+            throw new IllegalArgumentException("Exchange rate doesn't exist");
+        }
+    }
+
+    @Override
+    public void deleteByCurrencyName(String currencyName) {
+        Currency currency = currencyRepository.getByName(currencyName);
+        exchangeRates.removeAll(exchangeRates.stream()
+                .filter(er -> er.getCurrency().equals(currency))
+                .toList());
+
     }
 }
