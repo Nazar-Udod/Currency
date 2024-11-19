@@ -15,7 +15,7 @@ public class FakeExchangeRateRepository implements ExchangeRateRepository {
 
     // Fields
     private final List<ExchangeRate> exchangeRates = new ArrayList<>();
-    private Integer currentId = 1;
+    private Integer currentId = 3;
 
     // Constructor
     public FakeExchangeRateRepository(CurrencyRepository currencyRepository) {
@@ -75,7 +75,8 @@ public class FakeExchangeRateRepository implements ExchangeRateRepository {
             throw new IllegalArgumentException("Exchange rate already exists");
         }
         else {
-            exchangeRates.add(new ExchangeRate(currentId++,
+            currentId++;
+            exchangeRates.add(new ExchangeRate(currentId,
                     currencyRepository.getByName(currencyName),
                     date,
                     rate));

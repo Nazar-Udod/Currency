@@ -9,7 +9,7 @@ import java.util.ArrayList;
 public class FakeCurrencyRepository implements CurrencyRepository {
     // Fields
     private final List<Currency> currencies = new ArrayList<>();
-    private Integer currentId = 1;
+    private Integer currentId = 3;
 
     // Constructor
     public FakeCurrencyRepository() {
@@ -58,7 +58,8 @@ public class FakeCurrencyRepository implements CurrencyRepository {
             throw new IllegalArgumentException("Currency name already exists");
         }
         else {
-            currencies.add(new Currency(currentId++, name));
+            currentId++;
+            currencies.add(new Currency(currentId, name));
         }
     }
 
