@@ -156,6 +156,58 @@
             "description": "Помилка: курс обміну на цю дату вже існує."
           }
         }
+      },
+      "put": {
+        "summary": "Змінити курс обміну",
+        "description": "Оновлює курс обміну для вказаної валюти та дати.",
+        "parameters": [
+          {
+            "name": "currencyName",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Назва валюти, курс якої потрібно оновити."
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "format": "date" },
+            "description": "Дата, для якої потрібно оновити курс обміну."
+          },
+          {
+            "name": "rate",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "number" },
+            "description": "Новий курс обміну."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Курс обміну успішно оновлено.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "currencyName": { "type": "string" },
+                    "date": { "type": "string", "format": "date" },
+                    "rate": { "type": "number" }
+                  }
+                },
+                "example": {
+                  "currencyName": "EUR",
+                  "date": "2024-11-13",
+                  "rate": 42.15
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Помилка вхідних даних (наприклад, валюта або курс обміну не знайдені)."
+          }
+        }
       }
     },
     "/api/rates/today": {
@@ -223,6 +275,29 @@
           },
           "400": {
             "description": "Помилка: некоректні параметри або відсутній курс обміну для вказаних валют."
+          }
+        }
+      }
+    },
+    "/api/rates/{currencyName}": {
+      "delete": {
+        "summary": "Видалити всі курси обміну для валюти",
+        "description": "Видаляє всі курси обміну, пов'язані із вказаною валютою.",
+        "parameters": [
+          {
+            "name": "currencyName",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Назва валюти, курси якої потрібно видалити."
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Курси обміну успішно видалено."
+          },
+          "400": {
+            "description": "Помилка вхідних даних (наприклад, валюта не знайдена)."
           }
         }
       }
