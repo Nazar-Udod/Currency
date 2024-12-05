@@ -13,9 +13,9 @@ public class FakeCurrencyRepository implements CurrencyRepository {
 
     // Constructor
     public FakeCurrencyRepository() {
-        currencies.add(new Currency(1, "UAH"));
-        currencies.add(new Currency(2, "EUR"));
-        currencies.add(new Currency(3, "GBP"));
+        currencies.add(new Currency(1, "UAH", "UA"));
+        currencies.add(new Currency(2, "EUR", "EU"));
+        currencies.add(new Currency(3, "GBP", "Great Britain"));
     }
 
     // Methods
@@ -53,20 +53,36 @@ public class FakeCurrencyRepository implements CurrencyRepository {
     }
 
     @Override
-    public void add(String name) {
+    public int add(String name, String country) {
         if (currencies.stream().anyMatch(currency -> currency.getName().equals(name))) {
             throw new IllegalArgumentException("Currency name already exists");
         }
         else {
             currentId++;
-            currencies.add(new Currency(currentId, name));
+            currencies.add(new Currency(currentId, name, country));
+            return currentId;
         }
     }
 
     @Override
-    public void deleteByName(String name) {
+    public void updateById(int id, String name, String country) {
         Currency currency = currencies.stream()
-                .filter(c -> c.getName().equals(name))
+                .filter(c -> c.getId().equals(id))
+                .findFirst()
+                .orElse(null);
+        if (currency != null) {
+            currency.setName(name);
+            currency.setCountry(country);
+        }
+        else {
+            throw new IllegalArgumentException("Currency name does not exist");
+        }
+    }
+
+    @Override
+    public void deleteById(int id) {
+        Currency currency = currencies.stream()
+                .filter(c -> c.getId().equals(id))
                 .findFirst()
                 .orElse(null);
         if (currency != null) {

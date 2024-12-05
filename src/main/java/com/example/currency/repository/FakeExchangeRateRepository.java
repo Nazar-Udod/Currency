@@ -69,7 +69,7 @@ public class FakeExchangeRateRepository implements ExchangeRateRepository {
     }
 
     @Override
-    public void add(String currencyName, LocalDate date, double rate) {
+    public int add(String currencyName, LocalDate date, double rate) {
         if (exchangeRates.stream().anyMatch(er -> er.getCurrency().getName().equals(currencyName) &&
                 er.getDate().equals(date))) {
             throw new IllegalArgumentException("Exchange rate already exists");
@@ -80,17 +80,19 @@ public class FakeExchangeRateRepository implements ExchangeRateRepository {
                     currencyRepository.getByName(currencyName),
                     date,
                     rate));
+            return currentId;
         }
     }
 
     @Override
-    public void editRate(String currencyName, LocalDate date, double rate) {
+    public void editRateById(int id, LocalDate date, double rate) {
         ExchangeRate exchangeRate = exchangeRates.stream()
-                .filter(er -> er.getCurrency().getName().equals(currencyName) && er.getDate().equals(date))
+                .filter(er -> er.getId().equals(id))
                 .findFirst().
                 orElse(null);
         if (exchangeRate != null) {
             exchangeRate.setRate(rate);
+            exchangeRate.setDate(date);
         }
         else {
             throw new IllegalArgumentException("Exchange rate doesn't exist");
@@ -98,11 +100,17 @@ public class FakeExchangeRateRepository implements ExchangeRateRepository {
     }
 
     @Override
-    public void deleteByCurrencyName(String currencyName) {
-        Currency currency = currencyRepository.getByName(currencyName);
+    public void deleteById(int RateId) {
         exchangeRates.removeAll(exchangeRates.stream()
-                .filter(er -> er.getCurrency().equals(currency))
+                .filter(er -> er.getId().equals(RateId))
                 .toList());
+    }
 
+    @Override
+    public void deleteByCurrencyId(int id){
+        Currency currency = currencyRepository.getById(id);
+        exchangeRates.removeAll(exchangeRates.stream()
+                .filter(er -> er.getId().equals(currentId))
+                .toList());
     }
 }

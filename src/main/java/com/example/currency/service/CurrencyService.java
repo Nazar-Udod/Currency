@@ -26,19 +26,20 @@ public class CurrencyService {
         return currencyRepository.getAll();
     }
 
-    public Currency getCurrencyByName(String name) {
-        return currencyRepository.getByName(name);
+    public Currency getCurrencyById(int id) {
+        return currencyRepository.getById(id);
     }
 
-    public void saveCurrency(String name) {
-        currencyRepository.add(name);
+    public int saveCurrency(String name, String country) {
+        int id = currencyRepository.add(name, country);
+        return id;
     }
 
-    public void deleteCurrencyByName(String name) {
-        Currency currency = getCurrencyByName(name);
-        exchangeRateRepository.deleteByCurrencyName(name);
+    public void deleteCurrencyById(int id) {
+        Currency currency = getCurrencyById(id);
+        exchangeRateRepository.deleteByCurrencyId(id);
 
-        currencyRepository.deleteByName(name);
+        currencyRepository.deleteById(id);
     }
 
     public List<ExchangeRate> getAllExchangeRates(int page, int size) {
@@ -50,13 +51,13 @@ public class CurrencyService {
         return exchangeRateRepository.getAllByDate(LocalDate.now());
     }
 
-    public ExchangeRate getExchangeRateForCurrency(String currencyName, LocalDate date) {
-        return exchangeRateRepository.getByCurrencyAndDate(getCurrencyByName(currencyName).getId(), date);
+    public ExchangeRate getExchangeRateForCurrency(int id, LocalDate date) {
+        return exchangeRateRepository.getByCurrencyAndDate(getCurrencyById(id).getId(), date);
     }
 
-    public List<ExchangeRate> getExchangeRatesForCurrency(String currencyName, LocalDate startDate, LocalDate endDate, int page, int size) {
+    public List<ExchangeRate> getExchangeRatesForCurrency(int id, LocalDate startDate, LocalDate endDate, int page, int size) {
         List<ExchangeRate> filteredRates = exchangeRateRepository.getByCurrencyAndDateRange(
-                getCurrencyByName(currencyName).getId(), startDate, endDate);
+                getCurrencyById(id).getId(), startDate, endDate);
         return paginateList(filteredRates, page, size);
     }
 
@@ -69,15 +70,24 @@ public class CurrencyService {
         return rates.subList(fromIndex, toIndex);
     }
 
-    public void addExchangeRate(String currencyName, LocalDate date, double rate) {
-        exchangeRateRepository.add(currencyName, date, rate);
+    public int addExchangeRate(String currencyName, LocalDate date, double rate) {
+        int id = exchangeRateRepository.add(currencyName, date, rate);
+        return id;
     }
 
-    public void editExchnageRate(String currencyName, LocalDate date, double rate) {
-        exchangeRateRepository.editRate(currencyName, date, rate);
+    public void editExchnageRate(int id, LocalDate date, double rate) {
+        exchangeRateRepository.editRateById(id, date, rate);
     }
 
-    public void deleteExchangeRatesByCurrencyName(String currencyName) {
-        exchangeRateRepository.deleteByCurrencyName(currencyName);
+    public void deleteExchangeRatesByCurrencyId(int id) {
+        exchangeRateRepository.deleteByCurrencyId(id);
+    }
+
+    public void deleteById(int RateId){
+        exchangeRateRepository.deleteById(RateId);
+    }
+
+    public void updateById(int id, String name, String country) {
+        currencyRepository.updateById(id, name, country);
     }
 }

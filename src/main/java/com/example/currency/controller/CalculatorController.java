@@ -25,16 +25,16 @@ public class CalculatorController {
     @PostMapping("/convert")
     public ResponseEntity<Map<String, Object>> convert(
             @RequestParam("amount") double amount,
-            @RequestParam("inputCurrency") String inputCurrencyName,
-            @RequestParam("outputCurrency") String outputCurrencyName) {
+            @RequestParam("inputCurrency") int inputCurrencyId,
+            @RequestParam("outputCurrency") int outputCurrencyId) {
 
         Map<String, Object> response = new HashMap<>();
-        response.put("inputCurrency", inputCurrencyName);
-        response.put("outputCurrency", outputCurrencyName);
+        response.put("inputCurrency", inputCurrencyId);
+        response.put("outputCurrency", outputCurrencyId);
         response.put("originalAmount", amount);
         try {
-            double inputRate = currencyService.getExchangeRateForCurrency(inputCurrencyName, LocalDate.now()).getRate();
-            double outputRate = currencyService.getExchangeRateForCurrency(outputCurrencyName, LocalDate.now()).getRate();
+            double inputRate = currencyService.getExchangeRateForCurrency(inputCurrencyId, LocalDate.now()).getRate();
+            double outputRate = currencyService.getExchangeRateForCurrency(outputCurrencyId, LocalDate.now()).getRate();
             double convertedAmount = calculatorService.convert(amount, inputRate, outputRate);
             response.put("convertedAmount", convertedAmount);
             return new ResponseEntity<>(response, HttpStatus.OK);

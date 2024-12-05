@@ -24,21 +24,32 @@ public class CurrencyController {
         return new ResponseEntity<>(currencyService.getAllCurrencies(), HttpStatus.OK);
     }
 
-    @PostMapping("/currencies/{name}")
-    public ResponseEntity<String> createCurrency(@PathVariable String name) {
+    @PostMapping("/currencies/{name}/{country}")
+    public ResponseEntity<Integer> createCurrency(@PathVariable String name, @PathVariable String country) {
         try {
-            currencyService.saveCurrency(name);
-            return new ResponseEntity<>(name, HttpStatus.CREATED);
+            int id = currencyService.saveCurrency(name, country);
+            return new ResponseEntity<>(id, HttpStatus.CREATED);
         }
         catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(name, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
 
-    @DeleteMapping("/currencies/{name}")
-    public ResponseEntity<Void> deleteCurrencyByName(@PathVariable String name) {
+    @DeleteMapping("/currencies/{id}")
+    public ResponseEntity<Void> deleteCurrencyByName(@PathVariable int id) {
         try {
-            currencyService.deleteCurrencyByName(name);
+            currencyService.deleteCurrencyById(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @DeleteMapping("/currencies/{RateId}")
+    public ResponseEntity<Void> deleteById(@PathVariable int RateId) {
+        try {
+            currencyService.deleteById(RateId);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         catch (IllegalArgumentException e) {
@@ -48,18 +59,18 @@ public class CurrencyController {
 
     @GetMapping("/rates")
     public ResponseEntity<List<ExchangeRate>> getAllExchangeRates(
-            @RequestParam(required = false) String currencyName,
+            @RequestParam(required = false) int id,
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        if (currencyName != null && startDate != null && endDate != null) {
+        if (startDate != null && endDate != null) {
             try {
                 LocalDate start = LocalDate.parse(startDate);
                 LocalDate end = LocalDate.parse(endDate);
                 return new ResponseEntity<>(currencyService
-                        .getExchangeRatesForCurrency(currencyName, start, end, page, size), HttpStatus.OK);
+                        .getExchangeRatesForCurrency(id, start, end, page, size), HttpStatus.OK);
             }
             catch (IllegalArgumentException e) {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -74,34 +85,33 @@ public class CurrencyController {
     }
 
     @PostMapping("/rates")
-    public ResponseEntity<Map<String, Object>> createExchangeRate(@RequestParam String currencyName,
+    public ResponseEntity<Integer> createExchangeRate(@RequestParam String currencyName,
                                                                   @RequestParam String date,
                                                                   @RequestParam double rate) {
         LocalDate parsedDate = LocalDate.parse(date);
-        Map<String, Object> response = new HashMap<>();
-        response.put("currencyName", currencyName);
-        response.put("date", parsedDate);
-        response.put("rate", rate);
         try {
+            int id = currencyService.addExchangeRate(currencyName, parsedDate, rate);
             currencyService.addExchangeRate(currencyName, parsedDate, rate);
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
+            return new ResponseEntity<>(id, HttpStatus.CREATED);
         }
         catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
 
     @PutMapping("/rates")
-    public ResponseEntity<Map<String, Object>> updateExchangeRate(@RequestParam String currencyName,
+    public ResponseEntity<Map<String, Object>> updateExchangeRate(
+            @RequestParam int  id
+            ,@RequestParam String currencyName,
                                                            @RequestParam String date,
                                                            @RequestParam double rate) {
         LocalDate parsedDate = LocalDate.parse(date);
         Map<String, Object> response = new HashMap<>();
-        response.put("currencyName", currencyName);
+        response.put("currencyId", id);
         response.put("date", parsedDate);
         response.put("rate", rate);
         try {
-            currencyService.editExchnageRate(currencyName, parsedDate, rate);
+            currencyService.editExchnageRate(id, parsedDate, rate);
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
         catch (IllegalArgumentException e) {
@@ -109,10 +119,28 @@ public class CurrencyController {
         }
     }
 
-    @DeleteMapping("/rates/{currencyName}")
-    public ResponseEntity<Void> deleteExchangeRatesByCurrencyName(@PathVariable String currencyName) {
+    @PutMapping("/rates/{id}")
+    public ResponseEntity<Map<String, Object>> updateById(
+            @RequestParam int  id
+            ,@RequestParam String name,
+            @RequestParam String country) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("currencyId", id);
+        response.put("name", name);
+        response.put("country", country);
         try {
-            currencyService.deleteExchangeRatesByCurrencyName(currencyName);
+            currencyService.updateById(id, name, country);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+        catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @DeleteMapping("/rates/{id}")
+    public ResponseEntity<Void> deleteExchangeRatesByCurrencyId(@PathVariable int id) {
+        try {
+            currencyService.deleteExchangeRatesByCurrencyId(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         catch (IllegalArgumentException e) {

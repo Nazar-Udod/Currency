@@ -4,11 +4,13 @@ public class Currency {
     // Fields
     private Integer id;
     private String name;
+    private String country;
 
     // Constructor
-    public Currency(Integer id, String name) {
+    public Currency(Integer id, String name, String country) {
         this.id = id;
         this.name = name;
+        this.country = country;
     }
 
     // Getters and Setters
@@ -23,5 +25,11 @@ public class Currency {
     }
     public void setName(String name) {
         this.name = name;
+    }
+    public void setCountry(String country) {
+        this.country = country;
+    }
+    public String getCountry() {
+        return country;
     }
 }
