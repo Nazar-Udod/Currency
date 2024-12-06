@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.example.currency.service.CurrencyService;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -19,10 +21,43 @@ public class CurrencyController {
     @Autowired
     private CurrencyService currencyService;
 
-    @GetMapping("/currencies")
+    @GetMapping("/currencies") // Маршрут для получения всех валют
     public ResponseEntity<List<Currency>> getAllCurrencies() {
-        return new ResponseEntity<>(currencyService.getAllCurrencies(), HttpStatus.OK);
+        List<Currency> currencies = currencyService.getAllCurrencies();
+        return new ResponseEntity<>(currencies, HttpStatus.OK);
     }
+
+    @GetMapping("/currencies/{id}")
+    public ResponseEntity<Currency> getCurrencyById(@PathVariable int id) {
+        try {
+            Currency currency = currencyService.getCurrencyById(id);
+            return new ResponseEntity<>(currency, HttpStatus.OK);
+        }catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PutMapping("/currencies/edit/{id}")
+    public ResponseEntity<Currency> updateCurrencyById(@PathVariable int id, @RequestParam  String name, @RequestParam String country) {
+        try {
+            currencyService.updateById(id, name, country);
+            return new ResponseEntity<>(currencyService.getCurrencyById(id), HttpStatus.OK);
+        }catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/currenciesByCountry/{country}")
+    public ResponseEntity<Currency> getCurrencyByCountry(@PathVariable String country) {
+        try {
+            Currency currency = currencyService.getCurrencyByCountry(country);
+            return new ResponseEntity<>(currency, HttpStatus.OK);
+
+        }catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+    }
+
 
     @PostMapping("/currencies/{name}/{country}")
     public ResponseEntity<Integer> createCurrency(@PathVariable String name, @PathVariable String country) {
@@ -35,18 +70,21 @@ public class CurrencyController {
         }
     }
 
+
     @DeleteMapping("/currencies/{id}")
-    public ResponseEntity<Void> deleteCurrencyByName(@PathVariable int id) {
+    public ResponseEntity<Void> deleteCurrencyById(@PathVariable int id) {
         try {
             currencyService.deleteCurrencyById(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // Если ID не найден
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); // Для других ошибок
         }
     }
 
-    @DeleteMapping("/currencies/{RateId}")
+
+    @DeleteMapping("/rates/{RateId}")
     public ResponseEntity<Void> deleteById(@PathVariable int RateId) {
         try {
             currencyService.deleteById(RateId);
@@ -79,9 +117,9 @@ public class CurrencyController {
         return new ResponseEntity<>(currencyService.getAllExchangeRates(page, size), HttpStatus.OK);
     }
 
-    @GetMapping("/rates/today")
-    public ResponseEntity<List<ExchangeRate>> getExchangeRatesForToday() {
-        return new ResponseEntity<>(currencyService.getExchangeRatesForCurrentDay(), HttpStatus.OK);
+    @GetMapping("/rates/{id}")
+    public ResponseEntity<ExchangeRate> getExchangeRateById(@PathVariable int id) {
+        return new ResponseEntity<>(currencyService.getExchangeRateById(id), HttpStatus.OK);
     }
 
     @PostMapping("/rates")
@@ -137,7 +175,7 @@ public class CurrencyController {
         }
     }
 
-    @DeleteMapping("/rates/{id}")
+    @DeleteMapping("/ratesByCurrency/{id}")
     public ResponseEntity<Void> deleteExchangeRatesByCurrencyId(@PathVariable int id) {
         try {
             currencyService.deleteExchangeRatesByCurrencyId(id);

@@ -5,7 +5,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Scope;
 import com.example.currency.repository.FakeCurrencyRepository;
 import com.example.currency.repository.FakeExchangeRateRepository;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+@EnableTransactionManagement
 @Configuration
 public class AppConfig {
     @Bean

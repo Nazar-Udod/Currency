@@ -1,8 +1,11 @@
 package com.example.currency.service;
+import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.stereotype.Service;
 import com.example.currency.repository.CurrencyRepository;
 import com.example.currency.repository.ExchangeRateRepository;
+
+import java.beans.Transient;
 import java.util.ArrayList;
 import java.util.List;
 import com.example.currency.model.Currency;
@@ -35,11 +38,14 @@ public class CurrencyService {
         return id;
     }
 
+    @Transactional
     public void deleteCurrencyById(int id) {
-        Currency currency = getCurrencyById(id);
         exchangeRateRepository.deleteByCurrencyId(id);
-
         currencyRepository.deleteById(id);
+    }
+
+    public Currency getCurrencyByCountry(String country) {
+        return currencyRepository.getByCountry(country);
     }
 
     public List<ExchangeRate> getAllExchangeRates(int page, int size) {
@@ -49,6 +55,10 @@ public class CurrencyService {
 
     public List<ExchangeRate> getExchangeRatesForCurrentDay() {
         return exchangeRateRepository.getAllByDate(LocalDate.now());
+    }
+
+    public ExchangeRate getExchangeRateById(int id) {
+        return exchangeRateRepository.getById(id);
     }
 
     public ExchangeRate getExchangeRateForCurrency(int id, LocalDate date) {
