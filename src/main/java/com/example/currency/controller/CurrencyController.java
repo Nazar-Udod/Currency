@@ -21,73 +21,43 @@ public class CurrencyController {
     @Autowired
     private CurrencyService currencyService;
 
-    @GetMapping("/currencies") // Маршрут для получения всех валют
-    public ResponseEntity<List<Currency>> getAllCurrencies() {
-        List<Currency> currencies = currencyService.getAllCurrencies();
-        return new ResponseEntity<>(currencies, HttpStatus.OK);
+    @PostMapping("/currencies")
+    public ResponseEntity<Integer> createCurrency(@RequestParam String name, @RequestParam String country) {
+        try {
+            int id = currencyService.createCurrency(name, country);
+            return new ResponseEntity<>(id, HttpStatus.CREATED);
+        }
+        catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping("/currencies/{id}")
-    public ResponseEntity<Currency> getCurrencyById(@PathVariable int id) {
+    public ResponseEntity<Currency> readCurrency(@PathVariable int id) {
         try {
-            Currency currency = currencyService.getCurrencyById(id);
+            Currency currency = currencyService.readCurrency(id);
             return new ResponseEntity<>(currency, HttpStatus.OK);
-        }catch (Exception e) {
+        }
+        catch (IllegalArgumentException e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
     }
 
-    @PutMapping("/currencies/edit/{id}")
-    public ResponseEntity<Currency> updateCurrencyById(@PathVariable int id, @RequestParam  String name, @RequestParam String country) {
+    @PutMapping("/currencies/{id}")
+    public ResponseEntity<Currency> updateCurrency(@PathVariable int id, @RequestParam  String name, @RequestParam String country) {
         try {
-            currencyService.updateById(id, name, country);
-            return new ResponseEntity<>(currencyService.getCurrencyById(id), HttpStatus.OK);
-        }catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    @GetMapping("/currenciesByCountry/{country}")
-    public ResponseEntity<Currency> getCurrencyByCountry(@PathVariable String country) {
-        try {
-            Currency currency = currencyService.getCurrencyByCountry(country);
-            return new ResponseEntity<>(currency, HttpStatus.OK);
-
-        }catch (Exception e){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-    }
-
-
-    @PostMapping("/currencies/{name}/{country}")
-    public ResponseEntity<Integer> createCurrency(@PathVariable String name, @PathVariable String country) {
-        try {
-            int id = currencyService.saveCurrency(name, country);
-            return new ResponseEntity<>(id, HttpStatus.CREATED);
+            currencyService.updateCurrency(id, name, country);
+            return new ResponseEntity<>(currencyService.readCurrency(id), HttpStatus.OK);
         }
         catch (IllegalArgumentException e) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
-
 
     @DeleteMapping("/currencies/{id}")
     public ResponseEntity<Void> deleteCurrencyById(@PathVariable int id) {
         try {
-            currencyService.deleteCurrencyById(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // Если ID не найден
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); // Для других ошибок
-        }
-    }
-
-
-    @DeleteMapping("/rates/{RateId}")
-    public ResponseEntity<Void> deleteById(@PathVariable int RateId) {
-        try {
-            currencyService.deleteById(RateId);
+            currencyService.deleteCurrency(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         catch (IllegalArgumentException e) {
@@ -95,41 +65,25 @@ public class CurrencyController {
         }
     }
 
-    @GetMapping("/rates")
-    public ResponseEntity<List<ExchangeRate>> getAllExchangeRates(
-            @RequestParam(required = false) int id,
-            @RequestParam(required = false) String startDate,
-            @RequestParam(required = false) String endDate,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+    @GetMapping("/currenciesByCountry")
+    public ResponseEntity<List<Currency>> getCurrenciesByCountry(@RequestParam String country) {
+        try {
+            List<Currency> currencies = currencyService.getCurrenciesByCountry(country);
+            return new ResponseEntity<>(currencies, HttpStatus.OK);
 
-        if (startDate != null && endDate != null) {
-            try {
-                LocalDate start = LocalDate.parse(startDate);
-                LocalDate end = LocalDate.parse(endDate);
-                return new ResponseEntity<>(currencyService
-                        .getExchangeRatesForCurrency(id, start, end, page, size), HttpStatus.OK);
-            }
-            catch (IllegalArgumentException e) {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            }
         }
-        return new ResponseEntity<>(currencyService.getAllExchangeRates(page, size), HttpStatus.OK);
-    }
-
-    @GetMapping("/rates/{id}")
-    public ResponseEntity<ExchangeRate> getExchangeRateById(@PathVariable int id) {
-        return new ResponseEntity<>(currencyService.getExchangeRateById(id), HttpStatus.OK);
+        catch (IllegalArgumentException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
     }
 
     @PostMapping("/rates")
-    public ResponseEntity<Integer> createExchangeRate(@RequestParam String currencyName,
-                                                                  @RequestParam String date,
-                                                                  @RequestParam double rate) {
+    public ResponseEntity<Integer> createExchangeRate(@RequestParam double value,
+                                                      @RequestParam String date,
+                                                      @RequestParam int currencyId) {
         LocalDate parsedDate = LocalDate.parse(date);
         try {
-            int id = currencyService.addExchangeRate(currencyName, parsedDate, rate);
-            currencyService.addExchangeRate(currencyName, parsedDate, rate);
+            int id = currencyService.createExchangeRate(value, parsedDate, currencyId);
             return new ResponseEntity<>(id, HttpStatus.CREATED);
         }
         catch (IllegalArgumentException e) {
@@ -137,52 +91,62 @@ public class CurrencyController {
         }
     }
 
-    @PutMapping("/rates")
-    public ResponseEntity<Map<String, Object>> updateExchangeRate(
-            @RequestParam int  id
-            ,@RequestParam String currencyName,
-                                                           @RequestParam String date,
-                                                           @RequestParam double rate) {
-        LocalDate parsedDate = LocalDate.parse(date);
-        Map<String, Object> response = new HashMap<>();
-        response.put("currencyId", id);
-        response.put("date", parsedDate);
-        response.put("rate", rate);
+    @GetMapping("/rates/{id}")
+    public ResponseEntity<ExchangeRate> readExchangeRate(@PathVariable int id) {
         try {
-            currencyService.editExchnageRate(id, parsedDate, rate);
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            ExchangeRate exchangeRate = currencyService.readExchangeRate(id);
+            return new ResponseEntity<>(exchangeRate, HttpStatus.OK);
         }
         catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
     }
 
     @PutMapping("/rates/{id}")
-    public ResponseEntity<Map<String, Object>> updateById(
-            @RequestParam int  id
-            ,@RequestParam String name,
-            @RequestParam String country) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("currencyId", id);
-        response.put("name", name);
-        response.put("country", country);
+    public ResponseEntity<ExchangeRate> updateExchangeRate(@PathVariable int  id,
+                                                           @RequestParam double rate,
+                                                           @RequestParam String date) {
+        LocalDate parsedDate = LocalDate.parse(date);
         try {
-            currencyService.updateById(id, name, country);
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            currencyService.updateExchangeRate(id, rate, parsedDate);
+            return new ResponseEntity<>(currencyService.readExchangeRate(id), HttpStatus.OK);
         }
         catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
 
-    @DeleteMapping("/ratesByCurrency/{id}")
-    public ResponseEntity<Void> deleteExchangeRatesByCurrencyId(@PathVariable int id) {
+    @DeleteMapping("/rates/{id}")
+    public ResponseEntity<Void> deleteExchangeRate(@PathVariable int id) {
         try {
-            currencyService.deleteExchangeRatesByCurrencyId(id);
+            currencyService.deleteExchangeRate(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         catch (IllegalArgumentException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/ratesByCurrencyId")
+    public ResponseEntity<List<ExchangeRate>> getRatesByCurrencyId(@RequestParam int currencyId) {
+        try {
+            List<ExchangeRate> exchangeRates = currencyService.getExchangeRatesByCurrencyId(currencyId);
+            return new ResponseEntity<>(exchangeRates, HttpStatus.OK);
+        }
+        catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/ratesByDate")
+    public ResponseEntity<List<ExchangeRate>> getRatesByDate(@RequestParam String date) {
+        LocalDate parsedDate = LocalDate.parse(date);
+        try {
+            List<ExchangeRate> exchangeRates = currencyService.getExchangeRatesByDate(parsedDate);
+            return new ResponseEntity<>(exchangeRates, HttpStatus.OK);
+        }
+        catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
     }
 }

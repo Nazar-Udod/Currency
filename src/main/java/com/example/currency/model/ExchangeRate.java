@@ -7,14 +7,14 @@ public class ExchangeRate {
     private Integer id;
     private Currency currency;
     private LocalDate date;
-    private double rate;
+    private double value;
 
     // Constructor
-    public ExchangeRate(Integer id, Currency currency, LocalDate date, double rate) {
+    public ExchangeRate(Integer id, Currency currency, LocalDate date, double value) {
         this.id = id;
         this.currency = currency;
         this.date = date;
-        this.rate = rate;
+        this.value = value;
     }
 
     // Getters and Setters
@@ -42,11 +42,11 @@ public class ExchangeRate {
         this.date = date;
     }
 
-    public double getRate() {
-        return rate;
+    public double getValue() {
+        return value;
     }
 
-    public void setRate(double rate) {
-        this.rate = rate;
+    public void setValue(double value) {
+        this.value = value;
     }
 }

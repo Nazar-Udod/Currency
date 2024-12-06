@@ -1,14 +1,13 @@
 package com.example.currency.repository;
 
-import java.util.List;
 import com.example.currency.model.Currency;
 
+import java.util.List;
+
 public interface CurrencyRepository {
-    List<Currency> getAll();
-    Currency getById(Integer id);
-    Currency getByName(String name);
-    Currency getByCountry(String country);
-    int add(String name, String country);
-    void deleteById(int id);
-    void updateById(int id, String name, String country);
+    int create(String name, String country);
+    Currency read(int id);
+    void update(int id, String name, String country);
+    void delete(int id);
+    List<Currency> getByCountry(String country);
 }

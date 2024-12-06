@@ -3,23 +3,172 @@
   "info": {
     "title": "Currency API",
     "version": "1.0.0",
-    "description": "API для роботи з валютами та обмінними курсами"
+    "description": "API для управління валютами та курсами обміну."
   },
-  "servers": [
-    {
-      "url": "/api",
-      "description": "Основний сервер"
-    }
-  ],
   "paths": {
-    "/currencies": {
+    "/api/currencies": {
+      "post": {
+        "summary": "Створення валюти",
+        "description": "Додає нову валюту з вказаною назвою та країною.",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Назва валюти."
+          },
+          {
+            "name": "country",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Країна, до якої відноситься валюта."
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Валюта створена.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer",
+                  "example": 1
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Неправильний запит. Помилка у введених даних."
+          }
+        }
+      }
+    },
+    "/api/currencies/{id}": {
       "get": {
-        "summary": "Отримати всі валюти",
-        "operationId": "getAllCurrencies",
-        "description": "Ця операція дозволяє отримати список усіх доступних валют у системі.",
+        "summary": "Отримання валюти за ID",
+        "description": "Повертає інформацію про валюту за вказаним ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Унікальний ідентифікатор валюти."
+          }
+        ],
         "responses": {
           "200": {
-            "description": "Список валют",
+            "description": "Інформація про валюту.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Currency"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Валюта не знайдена."
+          }
+        }
+      },
+      "put": {
+        "summary": "Оновлення валюти",
+        "description": "Оновлює інформацію про валюту за ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Унікальний ідентифікатор валюти."
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Нова назва валюти."
+          },
+          {
+            "name": "country",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Нова країна валюти."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Оновлена валюта.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Currency"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Неправильний запит. Помилка у введених даних."
+          }
+        }
+      },
+      "delete": {
+        "summary": "Видалення валюти",
+        "description": "Видаляє валюту за ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Унікальний ідентифікатор валюти."
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Валюта успішно видалена."
+          },
+          "400": {
+            "description": "Неправильний запит. Помилка у введених даних."
+          }
+        }
+      }
+    },
+    "/api/currenciesByCountry": {
+      "get": {
+        "summary": "Отримання валют за країною",
+        "description": "Повертає список валют для вказаної країни.",
+        "parameters": [
+          {
+            "name": "country",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Країна для пошуку валют."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список валют.",
             "content": {
               "application/json": {
                 "schema": {
@@ -30,256 +179,189 @@
                 }
               }
             }
-          }
-        }
-      }
-    },
-    "/currencies/{id}": {
-      "get": {
-        "summary": "Отримати валюту за ID",
-        "operationId": "getCurrencyById",
-        "description": "Ця операція дозволяє отримати інформацію про валюту за її ID.",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "ID валюти"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Валюта знайдена",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Currency"
-                }
-              }
-            }
           },
           "404": {
-            "description": "Валюта не знайдена"
-          }
-        }
-      },
-      "delete": {
-        "summary": "Видалити валюту за ID",
-        "operationId": "deleteCurrencyById",
-        "description": "Ця операція дозволяє видалити валюту за її ID. Після видалення валюта більше не буде доступна в системі.",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "ID валюти"
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Успішно видалено"
-          },
-          "404": {
-            "description": "Валюта не знайдена"
-          },
-          "500": {
-            "description": "Внутрішня помилка сервера"
+            "description": "Країна не знайдена."
           }
         }
       }
     },
-    "/currencies/edit/{id}": {
-      "put": {
-        "summary": "Оновити валюту за ID",
-        "operationId": "updateCurrencyById",
-        "description": "Ця операція дозволяє оновити інформацію про валюту за її ID.",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "ID валюти"
-          },
-          {
-            "name": "name",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Назва валюти"
-          },
-          {
-            "name": "country",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Країна валюти"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Валюта оновлена",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Currency"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Невірний запит"
-          }
-        }
-      }
-    },
-    "/currenciesByCountry/{country}": {
-      "get": {
-        "summary": "Отримати валюту за країною",
-        "operationId": "getCurrencyByCountry",
-        "description": "Ця операція дозволяє отримати валюту, що використовується в певній країні.",
-        "parameters": [
-          {
-            "name": "country",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Країна валюти"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Валюта знайдена",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Currency"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Валюта не знайдена"
-          }
-        }
-      }
-    },
-    "/currencies/{name}/{country}": {
+    "/api/rates": {
       "post": {
-        "summary": "Створити нову валюту",
-        "operationId": "createCurrency",
-        "description": "Ця операція дозволяє створити нову валюту для певної країни.",
+        "summary": "Створення курсу обміну",
+        "description": "Додає новий курс обміну для вказаної валюти.",
         "parameters": [
           {
-            "name": "name",
-            "in": "path",
+            "name": "value",
+            "in": "query",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "number",
+              "format": "double"
             },
-            "description": "Назва валюти"
+            "description": "Значення курсу обміну."
           },
           {
-            "name": "country",
-            "in": "path",
+            "name": "date",
+            "in": "query",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "date"
             },
-            "description": "Країна валюти"
+            "description": "Дата курсу обміну."
+          },
+          {
+            "name": "currencyId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID валюти."
           }
         ],
         "responses": {
           "201": {
-            "description": "Валюта створена",
+            "description": "Курс обміну створено.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "integer",
-                  "description": "ID створеної валюти"
+                  "example": 1
                 }
               }
             }
           },
           "400": {
-            "description": "Невірний запит"
+            "description": "Неправильний запит. Помилка у введених даних."
           }
         }
       }
     },
-    "/rates": {
+    "/api/rates/{id}": {
       "get": {
-        "summary": "Отримати всі обмінні курси за датами(фільтрація)",
-        "operationId": "getAllExchangeRates",
-        "description": "Ця операція дозволяє отримати список усіх обмінних курсів, з можливістю фільтрації за датами та валютою.",
+        "summary": "Отримання курсу обміну за ID",
+        "description": "Повертає курс обміну за вказаним ID.",
         "parameters": [
           {
             "name": "id",
-            "in": "query",
-            "required": false,
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "integer"
             },
-            "description": "ID валюти для фільтрації"
-          },
-          {
-            "name": "startDate",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "format": "date"
-            },
-            "description": "Початкова дата для фільтрації"
-          },
-          {
-            "name": "endDate",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "format": "date"
-            },
-            "description": "Кінцева дата для фільтрації"
-          },
-          {
-            "name": "page",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 0
-            },
-            "description": "Сторінка для пагінації"
-          },
-          {
-            "name": "size",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 10
-            },
-            "description": "Кількість елементів на сторінку"
+            "description": "Унікальний ідентифікатор курсу обміну."
           }
         ],
         "responses": {
           "200": {
-            "description": "Список обмінних курсів",
+            "description": "Інформація про курс обміну.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExchangeRate"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Курс обміну не знайдено."
+          }
+        }
+      },
+      "put": {
+        "summary": "Оновлення курсу обміну",
+        "description": "Оновлює інформацію про курс обміну за вказаним ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Унікальний ідентифікатор курсу обміну."
+          },
+          {
+            "name": "rate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "double"
+            },
+            "description": "Нове значення курсу обміну."
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Нова дата курсу обміну."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Оновлений курс обміну.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExchangeRate"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Неправильний запит. Помилка у введених даних."
+          }
+        }
+      },
+      "delete": {
+        "summary": "Видалення курсу обміну",
+        "description": "Видаляє курс обміну за вказаним ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Унікальний ідентифікатор курсу обміну."
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Курс обміну успішно видалений."
+          },
+          "400": {
+            "description": "Неправильний запит. Помилка у введених даних."
+          }
+        }
+      }
+    },
+    "/api/ratesByCurrencyId": {
+      "get": {
+        "summary": "Отримання курсів обміну за валюту",
+        "description": "Повертає список курсів обміну для вказаної валюти.",
+        "parameters": [
+          {
+            "name": "currencyId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID валюти для пошуку курсів."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список курсів обміну.",
             "content": {
               "application/json": {
                 "schema": {
@@ -291,145 +373,17 @@
               }
             }
           },
-          "400": {
-            "description": "Невірний запит"
-          }
-        }
-      },
-      "post": {
-        "summary": "Створити новий обмінний курс",
-        "operationId": "createExchangeRate",
-        "description": "Ця операція дозволяє створити новий обмінний курс для валюти на певну дату.",
-        "parameters": [
-          {
-            "name": "currencyName",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Назва валюти"
-          },
-          {
-            "name": "date",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "date",
-              "description": "Дата обміну курсу"
-            }
-          },
-          {
-            "name": "rate",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "number",
-              "format": "float"
-            },
-            "description": "Обмінний курс"
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Обмінний курс створено",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ExchangeRate"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Невірний запит"
+          "404": {
+            "description": "Курси для вказаної валюти не знайдено."
           }
         }
       }
     },
-    "/rates/{id}": {
+    "/api/ratesByDate": {
       "get": {
-        "summary": "Отримати обмінний курс за ID",
-        "operationId": "getExchangeRateById",
-        "description": "Ця операція дозволяє отримати обмінний курс за його ID.",
+        "summary": "Отримання курсів обміну за дату",
+        "description": "Повертає список курсів обміну для вказаної дати.",
         "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "ID обмінного курсу"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Обмінний курс знайдений",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ExchangeRate"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Обмінний курс не знайдений"
-          }
-        }
-      },
-      "delete": {
-        "summary": "Видалити обмінний курс за ID",
-        "operationId": "deleteExchangeRateById",
-        "description": "Ця операція дозволяє видалити обмінний курс за його ID. Після видалення обмінний курс більше не буде доступний у системі.",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "ID обмінного курсу"
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Успішно видалено"
-          },
-          "404": {
-            "description": "Обмінний курс не знайдений"
-          },
-          "500": {
-            "description": "Внутрішня помилка сервера"
-          }
-        }
-      },
-      "put": {
-        "summary": "Оновити обмінний курс за ID",
-        "operationId": "updateExchangeRateById",
-        "description": "Ця операція дозволяє оновити обмінний курс для валюти за її ID. Потрібно вказати нову дату та курс.",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "ID обмінного курсу"
-          },
-          {
-            "name": "currencyName",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Назва валюти для оновлення"
-          },
           {
             "name": "date",
             "in": "query",
@@ -437,36 +391,25 @@
             "schema": {
               "type": "string",
               "format": "date"
-            },
-            "description": "Нова дата для обмінного курсу"
-          },
-          {
-            "name": "rate",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "number",
-              "format": "double"
-            },
-            "description": "Новий обмінний курс"
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "Обмінний курс оновлений",
+            "description": "Список курсів обміну за вказану дату.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ExchangeRate"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExchangeRate"
+                  }
                 }
               }
             }
           },
-          "400": {
-            "description": "Невірний запит"
-          },
           "404": {
-            "description": "Обмінний курс не знайдений"
+            "description": "Курси обміну для вказаної дати не знайдено."
           }
         }
       }
@@ -479,15 +422,15 @@
         "properties": {
           "id": {
             "type": "integer",
-            "description": "ID валюти"
+            "description": "Унікальний ідентифікатор валюти."
           },
           "name": {
             "type": "string",
-            "description": "Назва валюти"
+            "description": "Назва валюти."
           },
           "country": {
             "type": "string",
-            "description": "Країна, до якої належить валюта"
+            "description": "Країна, до якої належить валюта."
           }
         }
       },
@@ -496,21 +439,21 @@
         "properties": {
           "id": {
             "type": "integer",
-            "description": "ID обмінного курсу"
+            "description": "Унікальний ідентифікатор курсу обміну."
           },
-          "currencyName": {
-            "type": "string",
-            "description": "Назва валюти"
+          "value": {
+            "type": "number",
+            "format": "double",
+            "description": "Значення курсу обміну."
           },
           "date": {
             "type": "string",
             "format": "date",
-            "description": "Дата обміну курсу"
+            "description": "Дата, до якої відноситься курс обміну."
           },
-          "rate": {
-            "type": "number",
-            "format": "float",
-            "description": "Обмінний курс"
+          "currencyId": {
+            "type": "integer",
+            "description": "ID валюти, до якої відноситься курс обміну."
           }
         }
       }
