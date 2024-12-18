@@ -73,6 +73,6 @@ public class CurrencyService {
     }
 
     public List<ExchangeRate> getExchangeRatesByDate(LocalDate date) {
-        return exchangeRateRepository.findByDate(date);
+        return exchangeRateRepository.getByDate(date);
     }
 }

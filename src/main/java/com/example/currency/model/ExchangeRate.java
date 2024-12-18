@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
-@NamedQuery(name = "ExchangeRate.findByDate",
+@NamedQuery(name = "ExchangeRate.getByDate",
         query = "SELECT e FROM ExchangeRate e WHERE e.rateDate = :date")
 public class ExchangeRate {
     // Fields

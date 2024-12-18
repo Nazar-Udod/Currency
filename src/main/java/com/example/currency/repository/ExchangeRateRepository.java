@@ -5,6 +5,7 @@ import com.example.currency.model.ExchangeRate;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -25,7 +26,8 @@ public interface ExchangeRateRepository extends JpaRepository<ExchangeRate, Inte
     @Query("SELECT e FROM ExchangeRate e WHERE e.currency.id = :currencyId")
     List<ExchangeRate> getByCurrencyId(int currencyId);
 
-    List<ExchangeRate> findByDate(LocalDate date);
+    @Query(name = "ExchangeRate.getByDate")
+    List<ExchangeRate> getByDate(@Param("date") LocalDate date);
 
     @Transactional
     @Modifying
