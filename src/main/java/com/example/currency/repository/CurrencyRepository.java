@@ -9,10 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 public interface CurrencyRepository extends JpaRepository<Currency, Integer> {
-    @Transactional
-    @Modifying
-    @Query("INSERT INTO Currency (name, country) VALUES (:name, :country)")
-
     Currency findById(int id);
 
     @Transactional
