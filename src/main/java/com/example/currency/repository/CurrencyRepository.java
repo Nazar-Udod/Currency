@@ -12,7 +12,6 @@ public interface CurrencyRepository extends JpaRepository<Currency, Integer> {
     @Transactional
     @Modifying
     @Query("INSERT INTO Currency (name, country) VALUES (:name, :country)")
-    int create(String name, String country);
 
     Currency findById(int id);
 
