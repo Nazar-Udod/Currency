@@ -22,10 +22,10 @@ public class CurrencyController {
     private CurrencyService currencyService;
 
     @PostMapping("/currencies")
-    public ResponseEntity<Integer> createCurrency(@RequestParam String name, @RequestParam String country) {
+    public ResponseEntity<Currency> createCurrency(@RequestParam String name, @RequestParam String country) {
         try {
-            int id = currencyService.createCurrency(name, country);
-            return new ResponseEntity<>(id, HttpStatus.CREATED);
+            Currency currency = currencyService.createCurrency(name, country);
+            return new ResponseEntity<>(currency, HttpStatus.CREATED);
         }
         catch (IllegalArgumentException e) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
@@ -78,13 +78,13 @@ public class CurrencyController {
     }
 
     @PostMapping("/rates")
-    public ResponseEntity<Integer> createExchangeRate(@RequestParam double value,
+    public ResponseEntity<ExchangeRate> createExchangeRate(@RequestParam double value,
                                                       @RequestParam String date,
                                                       @RequestParam int currencyId) {
         LocalDate parsedDate = LocalDate.parse(date);
         try {
-            int id = currencyService.createExchangeRate(value, parsedDate, currencyId);
-            return new ResponseEntity<>(id, HttpStatus.CREATED);
+            ExchangeRate exchangeRate = currencyService.createExchangeRate(value, parsedDate, currencyId);
+            return new ResponseEntity<>(exchangeRate, HttpStatus.CREATED);
         }
         catch (IllegalArgumentException e) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);

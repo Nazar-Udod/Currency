@@ -17,19 +17,21 @@ public class CurrencyService {
     private final ExchangeRateRepository exchangeRateRepository;
 
     // Constructor
-    public CurrencyService(CurrencyRepository SQLCurrencyRepository, ExchangeRateRepository SQLExchangeRateRepository) {
-        this.currencyRepository = SQLCurrencyRepository;
-        this.exchangeRateRepository = SQLExchangeRateRepository;
+    public CurrencyService(CurrencyRepository currencyRepository, ExchangeRateRepository exchangeRateRepository) {
+        this.currencyRepository = currencyRepository;
+        this.exchangeRateRepository = exchangeRateRepository;
     }
 
     // Methods
-    public int createCurrency(String name, String country) {
-        int id = currencyRepository.create(name, country);
-        return id;
+    public Currency createCurrency(String name, String country) {
+        Currency currency = new Currency();
+        currency.setName(name);
+        currency.setCountry(country);
+        return currencyRepository.save(currency);
     }
 
     public Currency readCurrency(int id) {
-        return currencyRepository.read(id);
+        return currencyRepository.findById(id);
     }
 
     public void updateCurrency(int id, String name, String country) {
@@ -43,16 +45,19 @@ public class CurrencyService {
     }
 
     public List<Currency> getCurrenciesByCountry(String country) {
-        return currencyRepository.getByCountry(country);
+        return currencyRepository.findByCountry(country);
     }
 
-    public int createExchangeRate(double value, LocalDate date, int currencyId) {
-        int id = exchangeRateRepository.create(value, date, currencyId);
-        return id;
+    public ExchangeRate createExchangeRate(double value, LocalDate date, int currencyId) {
+        ExchangeRate exchangeRate = new ExchangeRate();
+        exchangeRate.setValue(value);
+        exchangeRate.setRateDate(date);
+        exchangeRate.setCurrency(currencyRepository.findById(currencyId));
+        return exchangeRateRepository.save(exchangeRate);
     }
 
     public ExchangeRate readExchangeRate(int id) {
-        return exchangeRateRepository.read(id);
+        return exchangeRateRepository.findById(id);
     }
 
     public void updateExchangeRate(int id, double rate, LocalDate date) {
@@ -68,6 +73,6 @@ public class CurrencyService {
     }
 
     public List<ExchangeRate> getExchangeRatesByDate(LocalDate date) {
-        return exchangeRateRepository.getByDate(date);
+        return exchangeRateRepository.findByDate(date);
     }
 }

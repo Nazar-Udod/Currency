@@ -36,8 +36,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "integer",
-                  "example": 1
+                  "$ref": "#/components/schemas/Currency"
                 }
               }
             }
@@ -227,8 +226,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "integer",
-                  "example": 1
+                  "$ref": "#/components/schemas/ExchangeRate"
                 }
               }
             }

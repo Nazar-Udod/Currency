@@ -1,12 +1,23 @@
 package com.example.currency.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+
+@Entity
 public class Currency {
     // Fields
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String name;
     private String country;
 
-    // Constructor
+    // Constructors
+    public Currency() {
+        super();
+    }
     public Currency(Integer id, String name, String country) {
         this.id = id;
         this.name = name;

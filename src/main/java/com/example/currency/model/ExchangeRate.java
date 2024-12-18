@@ -1,19 +1,30 @@
 package com.example.currency.model;
 
+import jakarta.persistence.*;
+
 import java.time.LocalDate;
 
+@Entity
+@NamedQuery(name = "ExchangeRate.findByDate",
+        query = "SELECT e FROM ExchangeRate e WHERE e.rateDate = :date")
 public class ExchangeRate {
     // Fields
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    @ManyToOne
     private Currency currency;
-    private LocalDate date;
+    private LocalDate rateDate;
     private double value;
 
-    // Constructor
-    public ExchangeRate(Integer id, Currency currency, LocalDate date, double value) {
+    // Constructors
+    public ExchangeRate() {
+        super();
+    }
+    public ExchangeRate(Integer id, Currency currency, LocalDate rateDate, double value) {
         this.id = id;
         this.currency = currency;
-        this.date = date;
+        this.rateDate = rateDate;
         this.value = value;
     }
 
@@ -34,12 +45,12 @@ public class ExchangeRate {
         this.currency = currency;
     }
 
-    public LocalDate getDate() {
-        return date;
+    public LocalDate getRateDate() {
+        return rateDate;
     }
 
-    public void setDate(LocalDate date) {
-        this.date = date;
+    public void setRateDate(LocalDate date) {
+        this.rateDate = date;
     }
 
     public double getValue() {
